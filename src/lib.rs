@@ -1,3 +1,4 @@
+use colored::Colorize;
 use serde_json::Value;
 
 pub fn flatten_json(input_json: &Value) -> Vec<String> {
@@ -16,32 +17,34 @@ fn flattenizer(input_json: &Value, prefix: String, flattened_strings: &mut Vec<S
     match input_json {
         Value::Object(obj) => {
             for key in obj.keys() {
-                let new_prefix = format!("{}.{}", prefix, key);
+                let new_prefix = format!("{}{}{}", prefix, ".".cyan(), key);
                 flattenizer(&obj[key], new_prefix, flattened_strings);
             }
         }
         Value::Array(array) => {
             for (index, value) in array.iter().enumerate() {
-                let new_prefix = format!("{}[{}]", prefix, index);
+                let new_prefix = format!("{}[{}]", prefix, index.to_string().blue());
                 flattenizer(value, new_prefix, flattened_strings);
             }
         }
         _ => {
             let formatted_value = match input_json {
-                Value::String(v) => format!("\"{v}\""),
-                Value::Number(v) => v.to_string(),
-                Value::Bool(v) => v.to_string(),
-                Value::Null => "null".to_string(),
-                _ => "".to_string(),
+                Value::String(v) => format!("\"{v}\"").green(),
+                Value::Number(v) => v.to_string().blue(),
+                Value::Bool(v) => v.to_string().yellow(),
+                Value::Null => "null".to_string().purple().italic(),
+                _ => "".to_string().hidden(),
             };
             let entry = format!("{} = {}", prefix, formatted_value);
-            flattened_strings.push(entry);
+            flattened_strings.push(entry.clone());
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use strip_ansi_escapes::strip_str;
+
     use crate::flatten_json;
 
     #[test]
@@ -96,6 +99,8 @@ mod tests {
 
         let actual_result = flatten_json(&input_json);
 
-        assert_eq!(actual_result, expected_result);
+        for (actual, expected) in actual_result.iter().zip(expected_result) {
+            assert_eq!(strip_str(actual), expected.to_string());
+        }
     }
 }
