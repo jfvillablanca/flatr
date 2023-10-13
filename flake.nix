@@ -11,9 +11,10 @@
         pkgs = import nixpkgs {
           inherit system;
         };
+        pname = "flatr";
+        version = "0.1.0";
       in
       {
-
         devShells.default = devenv.lib.mkShell {
           inherit inputs pkgs;
           modules = [
@@ -24,6 +25,13 @@
               ];
             }
           ];
+        };
+        packages.default = pkgs.rustPlatform.buildRustPackage {
+          inherit pname version;
+          src = ./.;
+          cargoLock = {
+            lockFile = ./Cargo.lock;
+          };
         };
       });
 }
