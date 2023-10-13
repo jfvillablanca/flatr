@@ -11,7 +11,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     let file = File::open(args.file)?;
     let json_schema: Value = from_reader(file)?;
 
-    let flattened_strings = flatten_json(&json_schema);
-    println!("{:#?}", flattened_strings);
+    flatten_json(&json_schema);
     Ok(())
 }

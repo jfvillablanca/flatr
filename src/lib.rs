@@ -5,6 +5,10 @@ pub fn flatten_json(input_json: &Value) -> Vec<String> {
 
     flattenizer(input_json, String::new(), &mut flattened_strings);
 
+    for string in &flattened_strings {
+        println!("{}", string);
+    }
+
     flattened_strings
 }
 
