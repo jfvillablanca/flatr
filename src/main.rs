@@ -1,11 +1,13 @@
+mod cli;
+
 use std::{error::Error, fs::File};
 
+use clap::Parser;
 use serde_json::{from_reader, Value};
 
-const INPUT_FILENAME: &str = "test-file.json";
-
 fn main() -> Result<(), Box<dyn Error>> {
-    let file = File::open(INPUT_FILENAME)?;
+    let args = cli::Args::parse();
+    let file = File::open(args.file_path)?;
     let json_schema: Value = from_reader(file)?;
 
     let flattened_strings = flatten_json(&json_schema);
