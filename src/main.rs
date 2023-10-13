@@ -8,7 +8,7 @@ use serde_json::{from_reader, Value};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args = cli::Args::parse();
-    let file = File::open(args.file_path)?;
+    let file = File::open(args.file)?;
     let json_schema: Value = from_reader(file)?;
 
     let flattened_strings = flatten_json(&json_schema);

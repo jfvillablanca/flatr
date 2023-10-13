@@ -9,13 +9,13 @@ use serde_json::{from_reader, Value};
 pub struct Args {
     /// Path to JSON file
     #[arg(short, long, value_parser = validate_json_file_path)]
-    pub file_path: String,
+    pub file: String,
 }
 
-fn validate_json_file_path(path: &str) -> Result<(), String> {
+fn validate_json_file_path(path: &str) -> Result<String, String> {
     match File::open(path) {
         Ok(file) => match from_reader::<_, Value>(file) {
-            Ok(_) => Ok(()),
+            Ok(_) => Ok(String::from(path)),
             Err(e) => Err(format!("{}", e)),
         },
         Err(e) => Err(format!("{}", e)),
@@ -39,7 +39,10 @@ mod tests {
             .expect("Unable to write to test file");
 
         // Use the function to validate the JSON file path
-        assert_eq!(validate_json_file_path(&test_file_name), Ok(()));
+        assert_eq!(
+            validate_json_file_path(&test_file_name),
+            Ok(String::from(test_file_name))
+        );
 
         // Clean up the test file
         std::fs::remove_file(&test_file_name).expect("Unable to remove test file");
