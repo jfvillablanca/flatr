@@ -1,14 +1,11 @@
 use colored::Colorize;
 use serde_json::Value;
+use strip_ansi_escapes::strip_str;
 
 pub fn flatten_json(input_json: &Value) -> Vec<String> {
     let mut flattened_strings: Vec<String> = vec![];
 
     flattenizer(input_json, String::new(), &mut flattened_strings);
-
-    for string in &flattened_strings {
-        println!("{}", string);
-    }
 
     flattened_strings
 }
@@ -36,15 +33,14 @@ fn flattenizer(input_json: &Value, prefix: String, flattened_strings: &mut Vec<S
                 _ => "".to_string().hidden(),
             };
             let entry = format!("{} = {}", prefix, formatted_value);
-            flattened_strings.push(entry.clone());
+            println!("{entry}");
+            flattened_strings.push(strip_str(entry));
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use strip_ansi_escapes::strip_str;
-
     use crate::flatten_json;
 
     #[test]
@@ -99,8 +95,6 @@ mod tests {
 
         let actual_result = flatten_json(&input_json);
 
-        for (actual, expected) in actual_result.iter().zip(expected_result) {
-            assert_eq!(strip_str(actual), expected.to_string());
-        }
+        assert_eq!(actual_result, expected_result);
     }
 }
