@@ -2,6 +2,31 @@ use colored::Colorize;
 use serde_json::Value;
 use strip_ansi_escapes::strip_str;
 
+/// Returns a String vector of the flattened JSON
+///
+/// # Example
+/// ```
+/// let input = serde_json::json!({
+///     "object": {
+///       "nested_string": "Nested string",
+///       "nested_number": 123,
+///       "nested_boolean": false,
+///       "nested_null_value": null,
+///       "nested_array": ["a", "b", "c"]
+///     }
+/// });
+/// let output = vec![
+///     ".object.nested_string = \"Nested string\"",
+///     ".object.nested_number = 123",
+///     ".object.nested_boolean = false",
+///     ".object.nested_null_value = null",
+///     ".object.nested_array[0] = \"a\"",
+///     ".object.nested_array[1] = \"b\"",
+///     ".object.nested_array[2] = \"c\"",
+/// ];
+/// assert_eq!(flatr::flatten_json(&input), output);
+/// ```
+///
 pub fn flatten_json(input_json: &Value) -> Vec<String> {
     let mut flattened_strings: Vec<String> = vec![];
 
