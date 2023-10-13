@@ -3,40 +3,7 @@ use serde_json::Value;
 pub fn flatten_json(input_json: &Value) -> Vec<String> {
     let mut flattened_strings: Vec<String> = vec![];
 
-    {
-        let prefix = String::new();
-        let flattened_strings: &mut Vec<String> = &mut flattened_strings;
-        match input_json {
-            Value::Object(obj) => {
-                for key in obj.keys() {
-                    let new_prefix = format!("{}.{}", prefix, key);
-                    flattenizer(&obj[key], new_prefix, flattened_strings);
-                }
-            }
-            Value::Array(array) => {
-                for (index, value) in array.iter().enumerate() {
-                    let new_prefix = format!("{}[{}]", prefix, index);
-                    flattenizer(value, new_prefix, flattened_strings);
-                }
-            }
-            Value::String(val) => {
-                let entry = format!("{} = \"{}\"", prefix, val);
-                flattened_strings.push(entry);
-            }
-            Value::Number(val) => {
-                let entry = format!("{} = {}", prefix, val);
-                flattened_strings.push(entry);
-            }
-            Value::Bool(val) => {
-                let entry = format!("{} = {}", prefix, val);
-                flattened_strings.push(entry);
-            }
-            Value::Null => {
-                let entry = format!("{} = null", prefix);
-                flattened_strings.push(entry);
-            }
-        }
-    };
+    flattenizer(input_json, String::new(), &mut flattened_strings);
 
     flattened_strings
 }
@@ -55,20 +22,15 @@ fn flattenizer(input_json: &Value, prefix: String, flattened_strings: &mut Vec<S
                 flattenizer(value, new_prefix, flattened_strings);
             }
         }
-        Value::String(val) => {
-            let entry = format!("{} = \"{}\"", prefix, val);
-            flattened_strings.push(entry);
-        }
-        Value::Number(val) => {
-            let entry = format!("{} = {}", prefix, val);
-            flattened_strings.push(entry);
-        }
-        Value::Bool(val) => {
-            let entry = format!("{} = {}", prefix, val);
-            flattened_strings.push(entry);
-        }
-        Value::Null => {
-            let entry = format!("{} = null", prefix);
+        _ => {
+            let formatted_value = match input_json {
+                Value::String(v) => format!("\"{v}\""),
+                Value::Number(v) => v.to_string(),
+                Value::Bool(v) => v.to_string(),
+                Value::Null => "null".to_string(),
+                _ => "".to_string(),
+            };
+            let entry = format!("{} = {}", prefix, formatted_value);
             flattened_strings.push(entry);
         }
     }
