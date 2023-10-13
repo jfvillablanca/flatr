@@ -1,6 +1,7 @@
 use std::fs::File;
 
 use clap::Parser;
+use serde_json::{from_reader, Value};
 
 /// Flattenize JSON files
 #[derive(Debug, Parser)]
@@ -13,7 +14,10 @@ pub struct Args {
 
 fn validate_json_file_path(path: &str) -> Result<(), String> {
     match File::open(path) {
-        Ok(_) => Ok(()),
+        Ok(file) => match from_reader::<_, Value>(file) {
+            Ok(_) => Ok(()),
+            Err(e) => Err(format!("{}", e)),
+        },
         Err(e) => Err(format!("{}", e)),
     }
 }
